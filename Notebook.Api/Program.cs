@@ -1,9 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Notebook.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
+
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+services.AddDbContext<ApplicationDbContext>(options =>  options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 

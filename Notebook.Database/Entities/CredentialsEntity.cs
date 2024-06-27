@@ -1,0 +1,13 @@
+﻿namespace Notebook.Database.Entities;
+
+public sealed record CredentialsEntity : EntityBase
+{
+    public string Email { get; set; }
+    public string Login { get; set; }
+    public string HashedPassword { get; set; }
+    public string Salt { get; set; }
+    public DateTimeOffset LastSeen { get; set; }
+    public DateTimeOffset? VerifiedAt { get; set; }
+
+    public UserEntity User { get; set; }
+}
