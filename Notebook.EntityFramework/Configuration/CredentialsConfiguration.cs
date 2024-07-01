@@ -8,6 +8,9 @@ internal sealed class CredentialsConfiguration : IEntityTypeConfiguration<Creden
 {
     public void Configure(EntityTypeBuilder<CredentialsEntity> builder)
     {
-        builder.ToTable("Credentials").HasKey(credentials => credentials.Id);
+        builder.ToTable(DatabaseTableNames.CREDENTIALS_TABLE_NAME).HasKey(credentials => credentials.Id);
+
+        builder.Property(credentials => credentials.Email).HasMaxLength(ConfigurationConstrains.EMAIL_MAX_LENGTH);
+        builder.Property(credentials => credentials.Login).HasMaxLength(ConfigurationConstrains.LOGIN_MAX_LENGHT);
     }
 }

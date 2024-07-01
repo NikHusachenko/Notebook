@@ -8,6 +8,9 @@ public sealed class ApplicationDbContext : DbContext
 {
     public DbSet<CredentialsEntity> Credentials { get; set; }
     public DbSet<UserEntity> Users { get; set; }
+    public DbSet<NoteEntity> Notes { get; set; }
+    public DbSet<CommentEntity> Comments { get; set; }
+    public DbSet<UserLikesEntity> UserLikes { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -18,5 +21,8 @@ public sealed class ApplicationDbContext : DbContext
     {
         modelBuilder.ApplyConfiguration(new CredentialsConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new NoteConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
+        modelBuilder.ApplyConfiguration(new UserLikesConfiguration());
     }
 }
