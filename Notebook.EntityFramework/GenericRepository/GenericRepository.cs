@@ -6,8 +6,8 @@ namespace Notebook.EntityFramework.GenericRepository;
 
 public abstract class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly DbSet<T> _table;
+    protected readonly ApplicationDbContext _dbContext;
+    protected readonly DbSet<T> _table;
 
     protected GenericRepository(ApplicationDbContext dbContext)
     {

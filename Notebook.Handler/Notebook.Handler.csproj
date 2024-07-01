@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="8.0.6" />
+    <PackageReference Include="MediatR" Version="12.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Notebook.EntityFramework\Notebook.EntityFramework.csproj" />
+    <ProjectReference Include="..\Notebook.Services\Notebook.Services.csproj" />
   </ItemGroup>
 
 </Project>
