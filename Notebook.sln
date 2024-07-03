@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notebook.EntityFramework", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notebook.Services", "Notebook.Services\Notebook.Services.csproj", "{DE9CFB50-552E-49C2-BE8E-AFF993B54CDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notebook.Handler", "Notebook.Handler\Notebook.Handler.csproj", "{500585A4-65EA-49D6-98CD-67B607046578}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notebook.Handler", "Notebook.Handler\Notebook.Handler.csproj", "{500585A4-65EA-49D6-98CD-67B607046578}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
