@@ -4,4 +4,6 @@ public interface IRepositoryFactory
 {
     CredentialsRepository NewCredentialsRepository();
     UserRepository NewUserRepository();
+    NoteRepository NewNoteRepository();
+    UserLikesRepository NewUserLikesRepository();
 }

@@ -4,7 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using Notebook.EntityFramework;
 using Notebook.EntityFramework.Repositories;
 using Notebook.Handler.Authentication.SignIn;
+using Notebook.Services.DocumentServices;
 using Notebook.Services.Jwt;
+using Notebook.Services.UserServices;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,8 +48,11 @@ services.AddDbContext<ApplicationDbContext>(options =>  options.UseSqlServer(con
 
 services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 
+services.AddHttpContextAccessor();
 services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 services.AddTransient<IJwtService, JwtService>();
+services.AddTransient<DocumentService>();
+services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 
 var app = builder.Build();
 
