@@ -31,13 +31,16 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Ent
         return Update(entity);
     }
 
-    public virtual IQueryable<T> GetAll() => 
-        _table.Where(record => !record.DeletedAt.HasValue).AsNoTracking();
+    public virtual Task<List<T>> GetAll() => 
+        _table.Where(record => !record.DeletedAt.HasValue)
+        .AsNoTracking()
+        .ToListAsync();
 
-    public virtual IQueryable<T> GetAllBy(Expression<Func<T, bool>> predicate) =>
+    public virtual Task<List<T>> GetAllBy(Expression<Func<T, bool>> predicate) =>
         _table.Where(record => !record.DeletedAt.HasValue)
             .Where(predicate)
-            .AsNoTracking();
+            .AsNoTracking()
+            .ToListAsync();
 
     public virtual Task<T?> GetBy(Expression<Func<T, bool>> predicate) =>
         _table.Where(record => !record.DeletedAt.HasValue)

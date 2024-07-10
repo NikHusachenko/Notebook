@@ -12,6 +12,6 @@ public interface IGenericRepository<T> where T : EntityBase
     Task<T?> GetById(Guid id);
     Task<T?> GetBy(Expression<Func<T, bool>> predicate);
 
-    IQueryable<T> GetAll();
-    IQueryable<T> GetAllBy(Expression<Func<T, bool>> predicate);
+    Task<List<T>> GetAll();
+    Task<List<T>> GetAllBy(Expression<Func<T, bool>> predicate);
 }

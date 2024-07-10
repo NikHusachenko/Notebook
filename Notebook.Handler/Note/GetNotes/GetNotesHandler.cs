@@ -42,7 +42,6 @@ public sealed class GetNotesHandler(
     {
         UserLikesRepository repository = repositoryFactory.NewUserLikesRepository();
         return await repository.GetAllBy(record => 
-            record.UserId == userId)
-            .ToListAsync();
+            record.UserId == userId);
     }
 }
