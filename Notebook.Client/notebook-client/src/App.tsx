@@ -6,8 +6,9 @@ import ForgotPassword from './pages/authentication/ForgotPassword';
 import Header from './components/Header';
 import Home from './pages/Home/Index';
 import Informaction from './pages/account/Information';
-import Settings from './pages/account/settings';
+import Settings from './pages/account/Settings';
 import LogOut from './pages/authentication/LogOut';
+import Blog from './pages/blog/Blog';
 
 function App() {
   return (
@@ -15,13 +16,14 @@ function App() {
       <Header/>
       <Routes>
         <Route path='/' element={ <Home/> } />
-        <Route path='authentication/sign-in' element={ <SignIn/> } />
-        <Route path='authentication/sign-up' element={ <SignUp/> } />
-        <Route path='authentication/forgot-password' element={ <ForgotPassword/> } />
-        <Route path='authentication/restore-password' element={ <RestorePassword/> } />
-        <Route path='account/information' element={ <Informaction/> } />
-        <Route path='account/settings' element={ <Settings/> } />
-        <Route path='account/log-out' element={ <LogOut /> } />
+        <Route path='/authentication/sign-in' element={ <SignIn/> } />
+        <Route path='/authentication/sign-up' element={ <SignUp/> } />
+        <Route path='/authentication/forgot-password' element={ <ForgotPassword/> } />
+        <Route path='/authentication/restore-password' element={ <RestorePassword/> } />
+        <Route path='/account/information' element={ <Informaction/> } />
+        <Route path='/account/settings' element={ <Settings/> } />
+        <Route path='/account/log-out' element={ <LogOut /> } />
+        <Route path='/blog/:id' element={ <Blog /> } />
       </Routes>
     </BrowserRouter>
   );

@@ -11,6 +11,7 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<NoteEntity> Notes { get; set; }
     public DbSet<CommentEntity> Comments { get; set; }
     public DbSet<UserLikesEntity> UserLikes { get; set; }
+    public DbSet<FollowingEntity> Followings { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -24,5 +25,6 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new NoteConfiguration());
         modelBuilder.ApplyConfiguration(new CommentConfiguration());
         modelBuilder.ApplyConfiguration(new UserLikesConfiguration());
+        modelBuilder.ApplyConfiguration(new FollowingConfiguration());
     }
 }

@@ -16,4 +16,6 @@ public sealed record UserEntity : EntityBase
     public List<UserLikesEntity> Liked { get; set; } = new List<UserLikesEntity>();
     public List<NoteEntity> Notes { get; set; } = new List<NoteEntity>();
     public List<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
+    public List<FollowingEntity> Followers { get; set; } = new List<FollowingEntity>();
+    public List<FollowingEntity> Followings { get; set; } = new List<FollowingEntity>();
 }
