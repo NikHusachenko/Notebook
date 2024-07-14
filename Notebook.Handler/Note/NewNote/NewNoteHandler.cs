@@ -1,11 +1,14 @@
 ﻿using MediatR;
 using Notebook.Database.Entities;
 using Notebook.EntityFramework.Repositories;
+using Notebook.Services.CryptingServices;
 using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Note.NewNote;
 
-public sealed class NewNoteHandler(IRepositoryFactory repositoryFactory)
+public sealed class NewNoteHandler(
+    IRepositoryFactory repositoryFactory,
+    ICryptingManager cryptingManager)
     : IRequestHandler<NewNoteRequest, Result<NoteEntity>>
 {
     private const string CreationErrror = "Error while create new note.";
@@ -16,7 +19,7 @@ public sealed class NewNoteHandler(IRepositoryFactory repositoryFactory)
 
         NoteEntity dbReecord = new()
         {
-            Content = request.Content,
+            Content = cryptingManager.Encrypt(request.Content),
             OwnerId = request.OwnerId,
         };
 

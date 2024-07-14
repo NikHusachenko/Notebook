@@ -6,4 +6,5 @@ public interface IRepositoryFactory
     UserRepository NewUserRepository();
     NoteRepository NewNoteRepository();
     UserLikesRepository NewUserLikesRepository();
+    CommentRepository NewCommentRepository();
 }

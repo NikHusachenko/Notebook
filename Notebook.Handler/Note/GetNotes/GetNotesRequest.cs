@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Notebook.Handler.Note.Models;
+using Notebook.Handler.Models;
 
 namespace Notebook.Handler.Note.GetNotes;
 
