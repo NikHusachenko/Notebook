@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Notebook.Services\Notebook.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authentication\SignUpInvite\" />
+  </ItemGroup>
+
 </Project>

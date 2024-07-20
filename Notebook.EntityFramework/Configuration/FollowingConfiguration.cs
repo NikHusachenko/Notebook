@@ -8,18 +8,18 @@ internal sealed class FollowingConfiguration : IEntityTypeConfiguration<Followin
 {
     public void Configure(EntityTypeBuilder<FollowingEntity> builder)
     {
-        builder.ToTable("Followings").HasKey(f => new { f.FollowerId, f.FollowingId });
+        builder.ToTable("Followings").HasKey(f => f.Id);
 
         // User has followers (Follower)
         builder.HasOne<UserEntity>(f => f.Follower)
             .WithMany(user => user.Followers)
             .HasForeignKey(f => f.FollowerId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         // User has followings (Following)
         builder.HasOne<UserEntity>(f => f.Following)
             .WithMany(user => user.Followings)
             .HasForeignKey(f => f.FollowingId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
