@@ -9,4 +9,6 @@ public sealed record CredentialsEntity : EntityBase
     public DateTimeOffset? VerifiedAt { get; set; }
 
     public UserEntity User { get; set; }
+
+    public List<TokenEntity> Tokens { get; set; } = new List<TokenEntity>();
 }

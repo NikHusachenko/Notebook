@@ -18,13 +18,13 @@ public sealed class SmtpEmailService : IEmailService
         _client = new SmtpClient();
     }
 
-    public async Task<Result> SendEmail(string recipientName, string recipientAddress, string title, string htmlContent)
+    public async Task<Result> SendEmail(string recipientAddress, string title, string htmlContent)
     {
         try
         {
             await _client.ConnectAsync(_smtpOptions.Host, _smtpOptions.Port, _smtpOptions.UseSsl);
             await _client.AuthenticateAsync(_smtpOptions.Address, _smtpOptions.Password);
-            await _client.SendAsync(CreateMessage(recipientName, recipientAddress, title, htmlContent));
+            await _client.SendAsync(CreateMessage(recipientAddress, title, htmlContent));
             await _client.DisconnectAsync(true);
             return Result.Success();
         }
@@ -34,11 +34,11 @@ public sealed class SmtpEmailService : IEmailService
         }
     }
 
-    private MimeMessage CreateMessage(string recipientName, string recipientAddress, string title, string htmlContent)
+    private MimeMessage CreateMessage(string recipientAddress, string title, string htmlContent)
     {
         MimeMessage message = new MimeMessage();
         message.From.Add(new MailboxAddress(_smtpOptions.Name, _smtpOptions.Address));
-        message.To.Add(new MailboxAddress(recipientName, recipientAddress));
+        message.To.Add(MailboxAddress.Parse(recipientAddress));
         message.Subject = title;
 
         BodyBuilder builder = new BodyBuilder() { HtmlBody = htmlContent };

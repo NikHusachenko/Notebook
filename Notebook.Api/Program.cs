@@ -8,6 +8,7 @@ using Notebook.Handler.Authentication.SignIn;
 using Notebook.Services.CryptingServices;
 using Notebook.Services.DocumentServices;
 using Notebook.Services.EmailServices;
+using Notebook.Services.Flows;
 using Notebook.Services.Jwt;
 using Notebook.Services.UserServices;
 using System.Text;
@@ -52,7 +53,7 @@ services.AddDataProtection()
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-/*services.AddDistributedSqlServerCache(config =>
+services.AddDistributedSqlServerCache(config =>
 {
     config.ConnectionString = connectionString;
     config.SchemaName = "dbo";
@@ -64,7 +65,7 @@ services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-});*/
+});
 
 services.AddDbContext<ApplicationDbContext>(options =>  options.UseSqlServer(connectionString));
 
@@ -78,6 +79,9 @@ services.AddTransient<DocumentService>();
 services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 services.AddSingleton<ICryptingManager, CryptingManager>();
 services.AddTransient<IEmailService, SmtpEmailService>();
+services.AddScoped<UserAccessFlow>();
+services.AddScoped<UrlBuilder>();
+services.AddScoped<EmailMessageManager>();
 
 var app = builder.Build();
 
@@ -92,7 +96,7 @@ app.UseHsts();
 
 app.UseAuthentication();
 app.UseAuthorization();
-/*app.UseSession();*/
+app.UseSession();
 
 app.MapControllers();
 

@@ -7,4 +7,5 @@ public sealed class RepositoryFactory(ApplicationDbContext dbContext) : IReposit
     public NoteRepository NewNoteRepository() => new(dbContext);
     public UserLikesRepository NewUserLikesRepository() => new(dbContext);
     public CommentRepository NewCommentRepository() => new(dbContext);
+    public TokenRepository NewTokenRepository() => new(dbContext);
 }

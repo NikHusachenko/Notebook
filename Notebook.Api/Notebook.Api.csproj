@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Notebook.Handler\Notebook.Handler.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>

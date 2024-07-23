@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Notebook.EntityFramework;
 
@@ -11,9 +12,11 @@ using Notebook.EntityFramework;
 namespace Notebook.EntityFramework.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240720233621_AddedSessions")]
+    partial class AddedSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,38 +184,6 @@ namespace Notebook.EntityFramework.Migrations
                     b.ToTable("Sessions", (string)null);
                 });
 
-            modelBuilder.Entity("Notebook.Database.Entities.TokenEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("CredentialsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("ExpiredAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CredentialsId");
-
-                    b.ToTable("Tokens", (string)null);
-                });
-
             modelBuilder.Entity("Notebook.Database.Entities.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -330,17 +301,6 @@ namespace Notebook.EntityFramework.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Notebook.Database.Entities.TokenEntity", b =>
-                {
-                    b.HasOne("Notebook.Database.Entities.CredentialsEntity", "Credentials")
-                        .WithMany("Tokens")
-                        .HasForeignKey("CredentialsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Credentials");
-                });
-
             modelBuilder.Entity("Notebook.Database.Entities.UserEntity", b =>
                 {
                     b.HasOne("Notebook.Database.Entities.CredentialsEntity", "Credentials")
@@ -373,8 +333,6 @@ namespace Notebook.EntityFramework.Migrations
 
             modelBuilder.Entity("Notebook.Database.Entities.CredentialsEntity", b =>
                 {
-                    b.Navigation("Tokens");
-
                     b.Navigation("User")
                         .IsRequired();
                 });
