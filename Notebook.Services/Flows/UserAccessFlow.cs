@@ -40,7 +40,7 @@ public sealed class UserAccessFlow
             return removeCredentialsResult;
         }
 
-        string inviteLink = urlBuilder(tokenGenerator().Value);
+        string inviteLink = urlBuilder(tokenResult.Value.Token);
         string htmlContent = await emailTemplate(inviteLink, AcceptInviteButton);
 
         Result sendEmailResult = await sendEmail(email, InviteEmailTitle, htmlContent);

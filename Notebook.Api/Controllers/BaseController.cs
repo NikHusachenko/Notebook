@@ -30,12 +30,12 @@ public abstract class BaseController(IMediator mediator) : ControllerBase
     protected async Task<IActionResult> MapResult(IRequest<Result> arg) =>
         await SendRequest(arg).Map(result =>
             result.ErrorMessages.Any() ?
-                AsSuccess() :
-                AsError(result.ErrorMessages));
+                AsError(result.ErrorMessages) :
+                AsSuccess());
 
     protected async Task<IActionResult> MapResult<TResult>(IRequest<Result<TResult>> arg) =>
         await SendRequest(arg).Map(result =>
             result.ErrorMessages.Any() ?
-                AsSuccess(result) :
-                AsError(result.ErrorMessages));
+                AsError(result.ErrorMessages) :
+                AsSuccess());
 }

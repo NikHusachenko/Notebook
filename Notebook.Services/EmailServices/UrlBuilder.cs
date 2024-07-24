@@ -6,6 +6,7 @@ public sealed class UrlBuilder
 {
     private const string AuthenticationController = "authentication";
     private const string ConfirmInviteTokenAction = "invite/confirm";
+    private const string TokenParamName = "token";
 
     private readonly HttpContext _httpContext;
     
@@ -18,5 +19,5 @@ public sealed class UrlBuilder
     }
 
     public string BuildInviteUrl(string token) =>
-        $"{Scheme}://{Domain}/{AuthenticationController}/{ConfirmInviteTokenAction}";
+        $"{Scheme}://{Domain}/{AuthenticationController}/{ConfirmInviteTokenAction}/{TokenParamName}={token}";
 }
