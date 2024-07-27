@@ -1,13 +1,14 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore.Storage;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Services.CryptingServices;
 using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Note.NewNote;
 
 public sealed class NewNoteHandler(
-    IRepositoryFactory repositoryFactory,
+    IGenericRepository<NoteEntity> repository,
     ICryptingManager cryptingManager)
     : IRequestHandler<NewNoteRequest, Result<NoteEntity>>
 {
@@ -15,21 +16,23 @@ public sealed class NewNoteHandler(
 
     public async Task<Result<NoteEntity>> Handle(NewNoteRequest request, CancellationToken cancellationToken)
     {
-        NoteRepository repository = repositoryFactory.NewNoteRepository();
-
         NoteEntity dbReecord = new()
         {
             Content = cryptingManager.Encrypt(request.Content),
             OwnerId = request.OwnerId,
         };
 
-        try
+        using (IDbContextTransaction transaction = await repository.NewTransaction())
         {
-            await repository.Create(dbReecord);
-        }
-        catch
-        {
-            return Result<NoteEntity>.Error(CreationErrror);
+            try
+            {
+                await repository.Create(dbReecord);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return Result<NoteEntity>.Error(CreationErrror);
+            }
         }
         return Result<NoteEntity>.Success(dbReecord);
     }

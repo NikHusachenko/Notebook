@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore.Storage;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Comment.Remove;
 
-public sealed class RemoveCommentHandler(IRepositoryFactory repositoryFactory)
+public sealed class RemoveCommentHandler(IGenericRepository<CommentEntity> repository)
     : IRequestHandler<RemoveCommentRequest, Result>
 {
     private const string NotFoundError = "Comment not found.";
@@ -13,21 +14,23 @@ public sealed class RemoveCommentHandler(IRepositoryFactory repositoryFactory)
 
     public async Task<Result> Handle(RemoveCommentRequest request, CancellationToken cancellationToken)
     {
-        CommentRepository repository = repositoryFactory.NewCommentRepository();
-
         CommentEntity? dbRecord = await repository.GetById(request.Id);
         if (dbRecord is null)
         {
             return Result.Error(NotFoundError);
         }
 
-        try
+        using (IDbContextTransaction transaction = await repository.NewTransaction())
         {
-            await repository.Delete(dbRecord);
-        }
-        catch
-        {
-            return Result.Error(RemovingError);
+            try
+            {
+                await repository.Delete(dbRecord);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return Result.Error(RemovingError);
+            }
         }
         return Result.Success();
     }

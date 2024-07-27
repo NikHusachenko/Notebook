@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Services.HashServices;
 using Notebook.Services.Jwt;
 using Notebook.Services.ResultService;
@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace Notebook.Handler.Authentication.SignIn;
 
 public sealed class SignInHandler(
-    IRepositoryFactory repositoryFactory,
+    IGenericRepository<CredentialsEntity> repository,
     IJwtService jwtService)
     : IRequestHandler<SignInRequest, Result<string>>
 {
@@ -22,8 +22,6 @@ public sealed class SignInHandler(
     
     private async Task<Result<CredentialsEntity>> VerifyCredentials(string login, string password)
     {
-        CredentialsRepository repository = repositoryFactory.NewCredentialsRepository();
-
         CredentialsEntity? result = await repository.GetBy(credentials => credentials.Login == login);
         if (result is null)
         {

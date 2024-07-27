@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Notebook.EntityFramework;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Handler.Authentication.SignIn;
 using Notebook.Services.CryptingServices;
-using Notebook.Services.DocumentServices;
 using Notebook.Services.EmailServices;
 using Notebook.Services.Flows;
 using Notebook.Services.Jwt;
@@ -68,14 +67,13 @@ services.AddSession(options =>
 });
 
 services.AddDbContext<ApplicationDbContext>(options =>  options.UseSqlServer(connectionString));
+services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpOptions"));
 
 services.AddHttpContextAccessor();
-services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 services.AddTransient<IJwtService, JwtService>();
-services.AddTransient<DocumentService>();
 services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 services.AddSingleton<ICryptingManager, CryptingManager>();
 services.AddTransient<IEmailService, SmtpEmailService>();

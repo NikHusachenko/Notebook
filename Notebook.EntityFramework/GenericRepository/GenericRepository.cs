@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Notebook.Database.Entities;
 using System.Linq.Expressions;
 
@@ -31,16 +32,14 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Ent
         return Update(entity);
     }
 
-    public virtual Task<List<T>> GetAll() => 
+    public virtual IQueryable<T> GetAll() =>
         _table.Where(record => !record.DeletedAt.HasValue)
-        .AsNoTracking()
-        .ToListAsync();
+        .AsNoTracking();
 
-    public virtual Task<List<T>> GetAllBy(Expression<Func<T, bool>> predicate) =>
+    public virtual IQueryable<T> GetAll(Expression<Func<T, bool>> predicate) =>
         _table.Where(record => !record.DeletedAt.HasValue)
             .Where(predicate)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
 
     public virtual Task<T?> GetBy(Expression<Func<T, bool>> predicate) =>
         _table.Where(record => !record.DeletedAt.HasValue)
@@ -49,6 +48,8 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Ent
     public virtual async Task<T?> GetById(Guid id) =>
         await _table.Where(record => !record.DeletedAt.HasValue)
         .FirstOrDefaultAsync(record => record.Id == id);
+
+    public Task<IDbContextTransaction> NewTransaction() => _dbContext.Database.BeginTransactionAsync();
 
     public virtual async Task Update(T entity)
     {

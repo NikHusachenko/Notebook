@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore.Storage;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Note.Delete;
 
-public sealed class DeleteNoteHandler(IRepositoryFactory repositoryFactory)
+public sealed class DeleteNoteHandler(IGenericRepository<NoteEntity> repository)
     : IRequestHandler<DeleteNoteRequest, Result>
 {
     private const int REMOVE_PERIOD = 2;
@@ -15,8 +16,6 @@ public sealed class DeleteNoteHandler(IRepositoryFactory repositoryFactory)
 
     public async Task<Result> Handle(DeleteNoteRequest request, CancellationToken cancellationToken)
     {
-        NoteRepository repository = repositoryFactory.NewNoteRepository();
-
         NoteEntity? dbRecord = await repository.GetById(request.Id);
         if (dbRecord is null)
         {
@@ -28,14 +27,19 @@ public sealed class DeleteNoteHandler(IRepositoryFactory repositoryFactory)
             return Result.Error(CantRemoveNoteError);
         }
 
-        try
+        using (IDbContextTransaction transaction = await repository.NewTransaction())
         {
-            await repository.Delete(dbRecord);
+            try
+            {
+                await repository.Delete(dbRecord);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return Result.Error(RemovingError);
+            }
         }
-        catch
-        {
-            return Result.Error(RemovingError);
-        }
+
         return Result.Success();
     }
 }

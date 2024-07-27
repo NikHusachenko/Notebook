@@ -1,16 +1,14 @@
 ﻿using MediatR;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
+using Notebook.Services.Extensions;
 
 namespace Notebook.Handler.Comment.GetComments;
 
-public sealed class GetCommentsHandler(
-    IRepositoryFactory repositoryFactory)
+public sealed class GetCommentsHandler(IGenericRepository<CommentEntity> repository)
     : IRequestHandler<GetCommentsRequest, List<CommentEntity>>
 {
-    public async Task<List<CommentEntity>> Handle(GetCommentsRequest request, CancellationToken cancellationToken)
-    {
-        CommentRepository repository = repositoryFactory.NewCommentRepository();
-        return await repository.GetComments(request.Filter.NoteId, request.Filter.Page, request.Filter.Take);
-    }
+    public async Task<List<CommentEntity>> Handle(GetCommentsRequest request, CancellationToken cancellationToken) =>
+        await repository.GetAll(comment => comment.NoteId == request.Filter.NoteId)
+            .Paging(request.Filter.Take, request.Filter.Page);
 }

@@ -1,4 +1,5 @@
-﻿using Notebook.Database.Entities;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Notebook.Database.Entities;
 using Notebook.Services.ResultService;
 
 namespace Notebook.Services.Flows;
@@ -13,57 +14,44 @@ public sealed class UserAccessFlow
 
     public async Task<Result> InviteNewUser(
         string email,
+        IDbContextTransaction transaction,
         Func<Result<string>> tokenGenerator,
         Func<CredentialsEntity, Task> createCredentials,
-        Func<CredentialsEntity, Task> removeCredentials,
         Func<TokenEntity, Task> createToken,
-        Func<TokenEntity, Task> removeToken,
         Func<string, string> urlBuilder,
         Func<string, string, Task<string>> emailTemplate,
         Func<string, string, string, Task<Result>> sendEmail)
     {
-        Result<CredentialsEntity> credentialsResult = await CreateCredentials(email, createCredentials);
-        if (credentialsResult.ErrorMessages.Any())
+        using (transaction)
         {
-            return Result.Error(credentialsResult.ErrorMessages);
-        }
-
-        Result<TokenEntity> tokenResult = await CreateToken(tokenGenerator().Value, credentialsResult.Value.Id, createToken);
-        if (tokenResult.ErrorMessages.Any())
-        {
-            Result removeCredentialsResult = await UndoAction(credentialsResult.Value, removeCredentials);
-            if (removeCredentialsResult.ErrorMessages.Any())
+            Result<CredentialsEntity> credentialsResult = await CreateCredentials(email, createCredentials);
+            if (credentialsResult.ErrorMessages.Any())
             {
-                removeCredentialsResult.AppendErrors(tokenResult.ErrorMessages);
+                await transaction.RollbackAsync();
+                return Result.Error(credentialsResult.ErrorMessages);
             }
 
-            return removeCredentialsResult;
-        }
-
-        string inviteLink = urlBuilder(tokenResult.Value.Token);
-        string htmlContent = await emailTemplate(inviteLink, AcceptInviteButton);
-
-        Result sendEmailResult = await sendEmail(email, InviteEmailTitle, htmlContent);
-        if (sendEmailResult.ErrorMessages.Any())
-        {
-            Result result = Result.Error(UndoError);
-
-            Result removeCredentialsResult = await UndoAction(credentialsResult.Value, removeCredentials);
-            if (removeCredentialsResult.ErrorMessages.Any())
+            Result<TokenEntity> tokenResult = await CreateToken(tokenGenerator().Value, credentialsResult.Value.Id, createToken);
+            if (tokenResult.ErrorMessages.Any())
             {
-                result.AppendErrors(removeCredentialsResult.ErrorMessages);
+                await transaction.RollbackAsync();
+                return Result.Error(tokenResult.ErrorMessages);
             }
 
-            Result removeTokenResult = await UndoAction(tokenResult.Value, removeToken);
-            if (removeTokenResult.ErrorMessages.Any())
+            string inviteLink = urlBuilder(tokenResult.Value.Token);
+            string htmlContent = await emailTemplate(inviteLink, AcceptInviteButton);
+
+            Result sendEmailResult = await sendEmail(email, InviteEmailTitle, htmlContent);
+            if (sendEmailResult.ErrorMessages.Any())
             {
-                result.AppendErrors(removeTokenResult.ErrorMessages);
+                await transaction.RollbackAsync();
+                return sendEmailResult;
             }
 
-            return result;
+            await transaction.CommitAsync();
         }
 
-        return sendEmailResult;
+        return Result.Success();
     }
 
     private async Task<Result<CredentialsEntity>> CreateCredentials(string email, Func<CredentialsEntity, Task> createCredentials)
@@ -96,18 +84,5 @@ public sealed class UserAccessFlow
             return Result<TokenEntity>.Error(CreateTokenError);
         }
         return Result<TokenEntity>.Success(dbRecord);
-    }
-
-    private async Task<Result> UndoAction<T>(T entity, Func<T, Task> removeFunc)
-    {
-        try
-        {
-            await removeFunc(entity);
-        }
-        catch
-        {
-            return Result.Error(UndoError);
-        }
-        return Result.Success();
     }
 }

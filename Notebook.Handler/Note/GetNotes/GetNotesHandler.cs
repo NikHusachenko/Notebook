@@ -1,13 +1,15 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notebook.Database.Entities;
-using Notebook.EntityFramework.Repositories;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Handler.Models;
 using Notebook.Services.UserServices;
+using System.Linq.Expressions;
 
 namespace Notebook.Handler.Note.GetNotes;
 
 public sealed class GetNotesHandler(
-    IRepositoryFactory repositoryFactory,
+    IGenericRepository<NoteEntity> repository,
     ICurrentUserContext currentUserContext)
     : IRequestHandler<GetNotesRequest, List<NoteModel>>
 {
@@ -15,13 +17,7 @@ public sealed class GetNotesHandler(
 
     public async Task<List<NoteModel>> Handle(GetNotesRequest request, CancellationToken cancellationToken)
     {
-        NoteRepository repository = repositoryFactory.NewNoteRepository();
-        List<NoteEntity> records = await repository.GetNotes(request.Filter.DateFrom,
-            request.Filter.DateTo,
-            request.Filter.Content,
-            request.Filter.AuthorLogin,
-            request.Filter.Page,
-            request.Filter.Take);
+        List<NoteEntity> records = await Filter(repository.GetAll(), request.Filter);
 
         return records.Select(record => new NoteModel()
         {
@@ -35,6 +31,23 @@ public sealed class GetNotesHandler(
         })
         .ToList();
     }
+
+    private async Task<List<NoteEntity>> Filter(IQueryable<NoteEntity> query,
+        GetNotesFilter filter)
+    {
+        query = Filter(query, filter.DateFrom, note => note.CreatedAt >= filter.DateFrom);
+        query = Filter(query, filter.DateTo, note => note.CreatedAt <= filter.DateTo);
+        query = Filter(query, filter.Content, note => note.Content.Contains(filter.Content!));
+        query = Filter(query, filter.AuthorLogin, note => note.Owner.Credentials.Login.Contains(filter.AuthorLogin!));
+
+        int skip = filter.Take <= 1 ? 0 : (filter.Page - 1) * filter.Take;
+        query = query.Skip(skip).Take(filter.Take);
+
+        return await query.ToListAsync();
+    }
+
+    private IQueryable<NoteEntity> Filter<T>(IQueryable<NoteEntity> query, T? arg, Expression<Func<NoteEntity, bool>> expression) =>
+        arg is not null ? query.Where(expression) : query;
 
     private bool CantRemoveNote(DateTimeOffset creationDate) =>
         (DateTimeOffset.Now - creationDate).Days < REMOVE_PERIOD;

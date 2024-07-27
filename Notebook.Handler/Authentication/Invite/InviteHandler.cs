@@ -1,5 +1,6 @@
 ﻿using MediatR;
-using Notebook.EntityFramework.Repositories;
+using Notebook.Database.Entities;
+using Notebook.EntityFramework.GenericRepository;
 using Notebook.Services.EmailServices;
 using Notebook.Services.Flows;
 using Notebook.Services.Jwt;
@@ -8,7 +9,8 @@ using Notebook.Services.ResultService;
 namespace Notebook.Handler.Authentication.Invite;
 
 public sealed class InviteHandler(
-    IRepositoryFactory repositoryFactory,
+    IGenericRepository<CredentialsEntity> credentialsRepository,
+    IGenericRepository<TokenEntity> tokenRepository,
     IJwtService jwtService,
     UrlBuilder urlBuilder,
     EmailMessageManager emailMessageManager,
@@ -18,25 +20,13 @@ public sealed class InviteHandler(
 {
     public async Task<Result> Handle(InviteRequest request, CancellationToken cancellationToken)
     {
-        CredentialsRepository credentialsRepository = repositoryFactory.NewCredentialsRepository();
-        TokenRepository tokenRepository = repositoryFactory.NewTokenRepository();
-
         return await userAccessFlow.InviteNewUser(request.Email,
+            await credentialsRepository.NewTransaction(),
             jwtService.RandomToken,
             credentialsRepository.Create,
-            credentialsRepository.Delete,
             tokenRepository.Create,
-            tokenRepository.Delete,
             urlBuilder.BuildInviteUrl,
             emailMessageManager.InviteTemplate,
             emailService.SendEmail);
     }
 }
-
-// Create credentials
-// Create user
-// Generate token
-// Save token
-// Build url
-// Get html template
-// Send email
