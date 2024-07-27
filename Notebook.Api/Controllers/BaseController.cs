@@ -10,6 +10,7 @@ public abstract class BaseController(IMediator mediator) : ControllerBase
 {
     protected const string AuthenticationControllerRoute = "api/authentication";
     protected const string InviteUserRoute = "/invite";
+    protected const string RegistrationCompleteRoute = "/registration-complete";
 
     protected async Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request) => await mediator.Send(request);
     protected IActionResult AsSuccess() => NoContent();

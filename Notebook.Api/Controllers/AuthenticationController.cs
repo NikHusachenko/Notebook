@@ -11,5 +11,8 @@ namespace Notebook.Api.Controllers
         [HttpPost(InviteUserRoute)]
         public async Task<IActionResult> Invite([FromBody] InviteUserApiRequest request) =>
             await MapResult(new InviteRequest(request.Email));
+
+        [HttpPost(RegistrationCompleteRoute)]
+        public async Task<IActionResult> RegistrationComplete([FromQuery] string token) => NotFound();
     }
 }

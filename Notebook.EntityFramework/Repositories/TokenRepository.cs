@@ -5,4 +5,5 @@ namespace Notebook.EntityFramework.Repositories;
 
 public sealed class TokenRepository(ApplicationDbContext dbContext) : GenericRepository<TokenEntity>(dbContext)
 {
+    public async Task<>
 }
