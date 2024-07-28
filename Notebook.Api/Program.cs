@@ -5,15 +5,17 @@ using Microsoft.IdentityModel.Tokens;
 using Notebook.EntityFramework;
 using Notebook.EntityFramework.GenericRepository;
 using Notebook.Handler.Authentication.SignIn;
+using Notebook.Services.CacheService;
 using Notebook.Services.CryptingServices;
 using Notebook.Services.EmailServices;
 using Notebook.Services.Flows;
 using Notebook.Services.Jwt;
 using Notebook.Services.UserServices;
+using StackExchange.Redis;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+IServiceCollection services = builder.Services;
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
@@ -52,12 +54,14 @@ services.AddDataProtection()
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-services.AddDistributedSqlServerCache(config =>
+/*services.AddDistributedSqlServerCache(config =>
 {
     config.ConnectionString = connectionString;
     config.SchemaName = "dbo";
     config.TableName = "Sessions";
-});
+});*/
+
+services.AddStackExchangeRedisCache(options => options.Configuration = "localhost");
 
 services.AddSession(options =>
 {
@@ -72,16 +76,18 @@ services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpOptions"));
 
-services.AddHttpContextAccessor();
-services.AddTransient<IJwtService, JwtService>();
-services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 services.AddSingleton<ICryptingManager, CryptingManager>();
-services.AddTransient<IEmailService, SmtpEmailService>();
+services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
+services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+services.AddScoped<ICacheManager, RedisCacheManager>();
 services.AddScoped<UserAccessFlow>();
 services.AddScoped<UrlBuilder>();
 services.AddScoped<EmailMessageManager>();
+services.AddTransient<IJwtService, JwtService>();
+services.AddTransient<IEmailService, SmtpEmailService>();
+services.AddHttpContextAccessor();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
