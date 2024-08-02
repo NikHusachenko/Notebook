@@ -1,48 +1,36 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Notebook.Database.Entities;
 using Notebook.EntityFramework.GenericRepository;
-using Notebook.Services.HashServices;
-using Notebook.Services.Jwt;
+using Notebook.Services.AuthenticationServices;
+using Notebook.Services.Flows;
 using Notebook.Services.ResultService;
-using System.Security.Claims;
 
 namespace Notebook.Handler.Authentication.SignIn;
 
 public sealed class SignInHandler(
-    IGenericRepository<CredentialsEntity> repository,
-    IJwtService jwtService)
-    : IRequestHandler<SignInRequest, Result<string>>
+    IGenericRepository<TokenEntity> tokenRepository,
+    ISessionManager sessionManager,
+    UserAccessFlow accessFlow)
+    : IRequestHandler<SignInRequest, Result>
 {
-    private const string InvalidCredentialsError = "Invalid credentials.";
+    private const string TokenNotFoundError = "Token not found.";
 
-    public Task<Result<string>> Handle(SignInRequest request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SignInRequest request, CancellationToken cancellationToken) =>
+        await accessFlow.Authentication(request.Token,
+            request.Login,
+            request.Password,
+            ValidateTokenAndGetCredentials,
+            sessionManager.Append);
+
+    private async Task<Result<CredentialsEntity>> ValidateTokenAndGetCredentials(string token)
     {
-        throw new NotImplementedException();
+        TokenEntity? dbRecord = await tokenRepository.GetAll()
+                    .Include(token => token.Credentials)
+                    .FirstOrDefaultAsync(t => t.Token == token);
+
+        return dbRecord is null ?
+            Result<CredentialsEntity>.Error(TokenNotFoundError) :
+            Result<CredentialsEntity>.Success(dbRecord.Credentials);
     }
-    
-    private async Task<Result<CredentialsEntity>> VerifyCredentials(string login, string password)
-    {
-        CredentialsEntity? result = await repository.GetBy(credentials => credentials.Login == login);
-        if (result is null)
-        {
-            return Result<CredentialsEntity>.Error(InvalidCredentialsError);
-        }
-
-        if (!Hasher.Verify(result.HashedPassword, password, result.Salt))
-        {
-            return Result<CredentialsEntity>.Error(InvalidCredentialsError);
-        }
-        return Result<CredentialsEntity>.Success(result);
-    }
-
-    private IEnumerable<Claim> GetClaims(CredentialsEntity credentials) =>
-    [
-        new Claim(JwtClaimTypes.ID, credentials.Id.ToString()),
-        new Claim(JwtClaimTypes.LOGIN, credentials.Login),
-        new Claim(JwtClaimTypes.EMAIL, credentials.Email),
-        new Claim(JwtClaimTypes.FIRST_NAME, credentials.User.FirstName),
-        new Claim(JwtClaimTypes.LAST_NAME, credentials.User.LastName)
-    ];
-
-    private Result<string> CreateToken(IEnumerable<Claim> claims) => jwtService.Encode(claims);
 }

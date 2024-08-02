@@ -4,9 +4,9 @@ namespace Notebook.Database.Entities;
 
 public sealed record UserEntity : EntityBase
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string ImagePath { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string ImagePath { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public DateTimeOffset LastSeen { get; set; }
 

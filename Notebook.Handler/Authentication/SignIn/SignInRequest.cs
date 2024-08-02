@@ -3,4 +3,4 @@ using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Authentication.SignIn;
 
-public sealed record SignInRequest(string login, string password) : IRequest<Result<string>>;
+public sealed record SignInRequest(string Token, string Login, string Password) : IRequest<Result>;

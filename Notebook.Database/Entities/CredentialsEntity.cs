@@ -5,6 +5,7 @@ public sealed record CredentialsEntity : EntityBase
     public string Email { get; set; } = string.Empty;
     public string Login { get; set; } = string.Empty;
     public string HashedPassword { get; set; } = string.Empty;
+    public bool IsRegistrationCompleted { get; set; }
     public byte[] Salt { get; set; } = [];
     public DateTimeOffset? VerifiedAt { get; set; }
 

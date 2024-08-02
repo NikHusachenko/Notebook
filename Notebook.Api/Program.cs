@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Notebook.Api.MiddleWares;
 using Notebook.EntityFramework;
 using Notebook.EntityFramework.GenericRepository;
 using Notebook.Handler.Authentication.SignIn;
+using Notebook.Services.AuthenticationServices;
 using Notebook.Services.CacheService;
 using Notebook.Services.CryptingServices;
 using Notebook.Services.EmailServices;
@@ -21,7 +23,7 @@ services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddAuthentication(options =>
+/*services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 })
@@ -41,7 +43,7 @@ services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = securityKey,
     };
-});
+});*/
 
 services.AddMediatR(options =>
 {
@@ -54,18 +56,19 @@ services.AddDataProtection()
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-/*services.AddDistributedSqlServerCache(config =>
+services.AddStackExchangeRedisCache(options => options.Configuration = "localhost");
+
+services.AddDistributedSqlServerCache(config =>
 {
     config.ConnectionString = connectionString;
     config.SchemaName = "dbo";
     config.TableName = "Sessions";
-});*/
-
-services.AddStackExchangeRedisCache(options => options.Configuration = "localhost");
+});
 
 services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.IOTimeout = TimeSpan.FromHours(6);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -79,6 +82,7 @@ services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpOptions"))
 services.AddSingleton<ICryptingManager, CryptingManager>();
 services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
 services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+services.AddScoped<ISessionManager, SessionManager>();
 services.AddScoped<ICacheManager, RedisCacheManager>();
 services.AddScoped<UserAccessFlow>();
 services.AddScoped<UrlBuilder>();
@@ -98,9 +102,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseHsts();
 
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllers();
 

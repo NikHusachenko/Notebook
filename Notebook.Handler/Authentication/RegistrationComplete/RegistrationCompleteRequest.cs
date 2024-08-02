@@ -7,4 +7,4 @@ public sealed record RegistrationCompleteRequest(string Token,
     string FirstName, 
     string LastName,
     string Login,
-    string Password) : IRequest<Result<string>>;
+    string Password) : IRequest<Result>;

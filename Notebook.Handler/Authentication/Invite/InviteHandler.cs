@@ -18,9 +18,8 @@ public sealed class InviteHandler(
     UserAccessFlow userAccessFlow)
     : IRequestHandler<InviteRequest, Result>
 {
-    public async Task<Result> Handle(InviteRequest request, CancellationToken cancellationToken)
-    {
-        return await userAccessFlow.InviteNewUser(request.Email,
+    public async Task<Result> Handle(InviteRequest request, CancellationToken cancellationToken) =>
+        await userAccessFlow.InviteNewUser(request.Email,
             await credentialsRepository.NewTransaction(),
             jwtService.RandomToken,
             credentialsRepository.Create,
@@ -28,5 +27,4 @@ public sealed class InviteHandler(
             urlBuilder.BuildInviteUrl,
             emailMessageManager.InviteTemplate,
             emailService.SendEmail);
-    }
 }
