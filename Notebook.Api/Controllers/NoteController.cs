@@ -5,6 +5,7 @@ using Notebook.Api.MiddleWares;
 using Notebook.Handler.Models;
 using Notebook.Handler.Note.GetNotes;
 using Notebook.Handler.Note.NewNote;
+using Notebook.Handler.Note.Update;
 
 namespace Notebook.Api.Controllers;
 
@@ -19,4 +20,8 @@ public sealed class NoteController(IMediator mediator) : BaseController(mediator
     [HttpGet(GetAllBaseRoute)]
     public async Task<IActionResult> GetAll([FromQuery] GetNotesFilter filter) =>
         await MapResult(new GetNotesRequest(filter));
+
+    [HttpPut(UpdateBaseRoute)]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateNoteContentApiRequest request) =>
+        await MapResult(new UpdateNoteContentRequest(id, request.Content));
 }

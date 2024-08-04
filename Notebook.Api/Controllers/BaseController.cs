@@ -19,6 +19,7 @@ public abstract class BaseController(IMediator mediator) : ControllerBase
     protected const string GetAllBaseRoute = "get/all";
     protected const string GetByIdBaseRoute = "get/{id:guid}";
     protected const string DeleteBaseRoute = "delete";
+    protected const string UpdateBaseRoute = "update/{id:guid}";
 
     protected async Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request) => await mediator.Send(request);
     protected IActionResult AsSuccess() => NoContent();

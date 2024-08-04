@@ -27,17 +27,13 @@ public sealed class DeleteNoteHandler(IGenericRepository<NoteEntity> repository)
             return Result.Error(CantRemoveNoteError);
         }
 
-        using (IDbContextTransaction transaction = await repository.NewTransaction())
+        try
         {
-            try
-            {
-                await repository.Delete(dbRecord);
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                return Result.Error(RemovingError);
-            }
+            await repository.Delete(dbRecord);
+        }
+        catch
+        {
+            return Result.Error(RemovingError);
         }
 
         return Result.Success();
