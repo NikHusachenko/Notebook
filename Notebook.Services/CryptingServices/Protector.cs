@@ -2,11 +2,11 @@
 
 namespace Notebook.Services.CryptingServices;
 
-public sealed class CryptingManager : ICryptingManager
+public sealed class Protector : ICryptingManager
 {
     private readonly IDataProtector _protector;
 
-    public CryptingManager(IDataProtectionProvider protectionProvider)
+    public Protector(IDataProtectionProvider protectionProvider)
     {
         _protector = protectionProvider.CreateProtector("note-protector");
     }

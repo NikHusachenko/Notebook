@@ -106,25 +106,24 @@ public sealed class UserAccessFlow
     }
 
     public async Task<Result> Authentication(
-        string token,
         string login,
         string password,
-        Func<string, Task<Result<CredentialsEntity>>> validateToken,
+        Func<string, Task<CredentialsEntity?>> getCredentials,
         Action<string, string> authenticate)
     {
-        Result<CredentialsEntity> validateTokenResult = await validateToken(token);
-        if (validateTokenResult.ErrorMessages.Any())
+        CredentialsEntity? dbRecord = await getCredentials(login);
+        if (dbRecord is null)
         {
-            return Result.Error(validateTokenResult.ErrorMessages);
+            return Result.Error(InvalidCredentialsError);
         }
 
-        bool isValidCredentials = ValidateCredentials(validateTokenResult.Value, login, password);
+        bool isValidCredentials = ValidateCredentials(dbRecord!, login, password);
         if (!isValidCredentials)
         {
             return Result.Error(InvalidCredentialsError);
         }
 
-        authenticate(SESSION_KEY_NAME, validateTokenResult.Value.Id.ToString());
+        authenticate(SESSION_KEY_NAME, dbRecord!.Id.ToString());
         return Result.Success();
     }
 

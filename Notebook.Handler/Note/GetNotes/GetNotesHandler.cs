@@ -21,13 +21,10 @@ public sealed class GetNotesHandler(
 
         return records.Select(record => new NoteModel()
         {
-            CanRemove = CantRemoveNote(record.CreatedAt),
             Content = record.Content,
-            Likes = record.Likes.Count,
             Id = record.Id,
-            IsLikedByUser = record.Likes.Where(like => like.UserId == currentUserContext.Id) is not null,
             OwnerId = record.OwnerId,
-            UpdatedAt = record.UpdatedAt,
+            CreatedAt = record.CreatedAt,
         })
         .ToList();
     }

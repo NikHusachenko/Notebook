@@ -1,23 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Notebook.Services.AuthenticationServices;
+using Notebook.Services.ResultService;
 
 namespace Notebook.Services.UserServices;
 
-public class CurrentUserContext : ICurrentUserContext
+public class CurrentUserContext(ISessionManager manager) : ICurrentUserContext
 {
-    private readonly HttpContext _httpContext;
+    private const string UnauthorizedError = "Unauthorized.";
 
-    public CurrentUserContext(IHttpContextAccessor contextAccessor)
+    private const string SESSION_KEY_NAME = "Id";
+
+    public Guid Id
     {
-        _httpContext = contextAccessor.HttpContext;
+        get
+        {
+            Result<string> result = manager.Get(SESSION_KEY_NAME);
+            if (result.ErrorMessages.Any() || !Guid.TryParse(result.Value, out Guid id))
+            {
+                throw new UnauthorizedAccessException(UnauthorizedError);
+            }
+            return id;
+        }
     }
-
-    public Guid Id => throw new NotImplementedException();
-
-    public string Login => throw new NotImplementedException();
-
-    public string Email => throw new NotImplementedException();
-
-    public string FirstName => throw new NotImplementedException();
-
-    public string LastName => throw new NotImplementedException();
 }

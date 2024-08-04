@@ -13,7 +13,5 @@ internal sealed class NoteConfiguration : IEntityTypeConfiguration<NoteEntity>
         builder.HasOne<UserEntity>(note => note.Owner)
             .WithMany(user => user.Notes)
             .HasForeignKey(note => note.OwnerId);
-
-        builder.Property(note => note.Content).HasMaxLength(ConfigurationConstrains.NOTE_CONTENT_MAX_LENGTH);
     }
 }

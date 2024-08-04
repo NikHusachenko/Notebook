@@ -79,7 +79,7 @@ services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 services.Configure<SmtpOptions>(builder.Configuration.GetSection("SmtpOptions"));
 
-services.AddSingleton<ICryptingManager, CryptingManager>();
+services.AddSingleton<ICryptingManager, Protector>();
 services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
 services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 services.AddScoped<ISessionManager, SessionManager>();

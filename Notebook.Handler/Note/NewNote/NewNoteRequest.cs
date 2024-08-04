@@ -4,4 +4,4 @@ using Notebook.Services.ResultService;
 
 namespace Notebook.Handler.Note.NewNote;
 
-public sealed record NewNoteRequest(string Content, Guid OwnerId) : IRequest<Result<NoteEntity>>;
+public sealed record NewNoteRequest(string Content) : IRequest<Result<NoteEntity>>;
