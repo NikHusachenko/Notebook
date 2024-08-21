@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Notebook.Api.ApiRequests.Authentication;
+using Notebook.Api.MiddleWares;
 using Notebook.Handler.Authentication.Invite;
 using Notebook.Handler.Authentication.RegistrationComplete;
 using Notebook.Handler.Authentication.SignIn;
-using Notebook.Services.AuthenticationServices;
 
 namespace Notebook.Api.Controllers
 {
@@ -24,5 +24,9 @@ namespace Notebook.Api.Controllers
         [HttpPost(SignInRoute)]
         public async Task<IActionResult> SignIn([FromBody] SignInApiRequest request) =>
             await MapResult(new SignInRequest(request.Login, request.Password));
+
+        [SessionAuthorize]
+        [HttpGet(CheckAuthenticationRoute)]
+        public async Task<IActionResult> CheckAuthentication() => NoContent();
     }
 }

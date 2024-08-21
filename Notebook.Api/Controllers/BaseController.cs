@@ -12,6 +12,7 @@ public abstract class BaseController(IMediator mediator) : ControllerBase
     protected const string InviteUserRoute = "invite";
     protected const string RegistrationCompleteRoute = "registration-complete";
     protected const string SignInRoute = "sign-in";
+    protected const string CheckAuthenticationRoute = "check-authentication";
 
     protected const string NoteControllerRoute = "api/note";
 
